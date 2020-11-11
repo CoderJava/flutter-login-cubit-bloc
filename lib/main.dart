@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_login_cubit_bloc/login_state.dart';
 
-import 'login_cubit.dart';
+import 'login_bloc.dart';
+import 'login_event.dart';
 
 void main() => runApp(App());
 
@@ -21,7 +22,7 @@ class HomePage extends StatelessWidget {
   final formState = GlobalKey<FormState>();
   final controllerUsername = TextEditingController();
   final controllerPassword = TextEditingController();
-  final loginCubit = LoginCubit();
+  final loginBloc = LoginBloc();
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +31,9 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Login'),
       ),
-      body: BlocProvider<LoginCubit>(
-        create: (context) => loginCubit,
-        child: BlocListener<LoginCubit, LoginState>(
+      body: BlocProvider<LoginBloc>(
+        create: (context) => loginBloc,
+        child: BlocListener<LoginBloc, LoginState>(
           listener: (context, state) {
             if (state is FailureLoginState) {
               scaffoldState.currentState.showSnackBar(SnackBar(content: Text(state.errorMessage)));
@@ -76,7 +77,7 @@ class HomePage extends StatelessWidget {
                             if (formState.currentState.validate()) {
                               var username = controllerUsername.text.trim();
                               var password = controllerPassword.text.trim();
-                              loginCubit.login(username, password);
+                              loginBloc.add(SubmitLoginEvent(username, password));
                             }
                           },
                         ),
@@ -85,7 +86,7 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
               ),
-              BlocBuilder<LoginCubit, LoginState>(
+              BlocBuilder<LoginBloc, LoginState>(
                 builder: (context, state) {
                   if (state is LoadingLoginState) {
                     return Container(
